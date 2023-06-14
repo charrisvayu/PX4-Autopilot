@@ -43,6 +43,7 @@
 #include <board_config.h>
 #include <px4_platform_common/getopt.h>
 #include <px4_platform_common/module.h>
+#include <lib/parameters/param.h>
 
 #include "LidarLiteI2C.h"
 
@@ -81,7 +82,9 @@ extern "C" __EXPORT int ll40ls_main(int argc, char *argv[])
 	int ch;
 	using ThisDriver = LidarLiteI2C;
 	BusCLIArguments cli{true, false};
-	cli.rotation = (Rotation)distance_sensor_s::ROTATION_DOWNWARD_FACING;
+	int32_t rotation_num = (int32_t)distance_sensor_s::ROTATION_DOWNWARD_FACING;
+	param_get(param_find("SENS_LL40LS_R_0"), &rotation_num);
+	cli.rotation = (Rotation)rotation_num;
 	cli.default_i2c_frequency = 100000;
 	cli.i2c_address = LL40LS_BASEADDR;
 

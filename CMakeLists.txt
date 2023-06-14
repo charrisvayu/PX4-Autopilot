@@ -125,6 +125,7 @@ string(REPLACE "." ";" VERSION_LIST ${PX4_GIT_TAG})
 # major version
 list(GET VERSION_LIST 0 PX4_VERSION_MAJOR)
 string(REPLACE "v" "" PX4_VERSION_MAJOR ${PX4_VERSION_MAJOR})
+
 # minor version
 list(GET VERSION_LIST 1 PX4_VERSION_MINOR)
 # patch version

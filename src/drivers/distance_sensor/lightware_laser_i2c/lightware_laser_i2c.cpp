@@ -434,7 +434,7 @@ Setup/usage information: https://docs.px4.io/main/en/sensor/sfxx_lidar.html
 	PRINT_MODULE_USAGE_COMMAND("start");
 	PRINT_MODULE_USAGE_PARAMS_I2C_SPI_DRIVER(true, false);
 	PRINT_MODULE_USAGE_PARAMS_I2C_ADDRESS(0x66);
-	PRINT_MODULE_USAGE_PARAM_INT('R', 25, 0, 25, "Sensor rotation - downward facing by default", true);
+	PRINT_MODULE_USAGE_PARAM_INT('R', 0, 0, 25, "Sensor rotation - downward facing by default", true);
 	PRINT_MODULE_USAGE_DEFAULT_COMMANDS();
 }
 
@@ -443,7 +443,10 @@ extern "C" __EXPORT int lightware_laser_i2c_main(int argc, char *argv[])
 	int ch;
 	using ThisDriver = LightwareLaser;
 	BusCLIArguments cli{true, false};
-	cli.rotation = (Rotation)distance_sensor_s::ROTATION_DOWNWARD_FACING;
+	int32_t rotation_num = 25;
+	param_get(param_find("SENS_LW20C_R_0"), &rotation_num);
+	// cli.rotation = (Rotation)distance_sensor_s::ROTATION_FORWARD_FACING;
+	cli.rotation = (Rotation)rotation_num;
 	cli.default_i2c_frequency = 400000;
 	cli.i2c_address = LIGHTWARE_LASER_BASEADDR;
 
