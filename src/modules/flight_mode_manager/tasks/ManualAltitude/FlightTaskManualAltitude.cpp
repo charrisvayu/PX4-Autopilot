@@ -162,6 +162,7 @@ void FlightTaskManualAltitude::_updateAltitudeLock()
 		_respectMaxAltitude();
 
 	} else {
+
 		// normal mode where height is dependent on local frame
 
 		if (apply_brake && stopped && !PX4_ISFINITE(_position_setpoint(2))) {
@@ -318,6 +319,7 @@ void FlightTaskManualAltitude::_ekfResetHandlerHeading(float delta_psi)
 void FlightTaskManualAltitude::_updateSetpoints()
 {
 	_updateHeadingSetpoints(); // get yaw setpoint
+	// _checkCollision();
 	_acceleration_setpoint.xy() = _stick_tilt_xy.generateAccelerationSetpoints(_sticks.getPitchRoll(), _deltatime, _yaw,
 				      _yaw_setpoint);
 	_updateAltitudeLock();

@@ -49,5 +49,5 @@ Vector2f StickTiltXY::generateAccelerationSetpoints(Vector2f stick_xy, const flo
 	_man_input_filter.setParameters(dt, _param_mc_man_tilt_tau.get());
 	stick_xy = _man_input_filter.update(stick_xy);
 	Sticks::rotateIntoHeadingFrameXY(stick_xy, yaw, yaw_setpoint);
-	return stick_xy * tanf(math::radians(_param_mpc_man_tilt_max.get())) * CONSTANTS_ONE_G;
+	return stick_xy * tanf(math::radians(_param_mpc_man_tilt_max.get())) * CONSTANTS_ONE_G;;
 }

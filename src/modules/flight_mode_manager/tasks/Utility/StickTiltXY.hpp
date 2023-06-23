@@ -40,8 +40,15 @@
 #pragma once
 
 #include <lib/mathlib/math/filter/AlphaFilter.hpp>
+#include <lib/collision_prevention/CollisionPrevention.hpp>
 #include <matrix/math.hpp>
+#include <mathlib/mathlib.h>
 #include <px4_platform_common/module_params.h>
+#include <uORB/topics/distance_sensor.h>
+#include <uORB/SubscriptionMultiArray.hpp>
+#include <uORB/Publication.hpp>
+#include <uORB/Subscription.hpp>
+#include <uORB/topics/collision_constraints.h>
 
 class StickTiltXY : public ModuleParams
 {
@@ -67,6 +74,7 @@ private:
 
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::MPC_MAN_TILT_MAX>) _param_mpc_man_tilt_max, ///< maximum tilt allowed for manual flight
-		(ParamFloat<px4::params::MC_MAN_TILT_TAU>) _param_mc_man_tilt_tau ///< time constant for stick filter
+		(ParamFloat<px4::params::MC_MAN_TILT_TAU>) _param_mc_man_tilt_tau, ///< time constant for stick filter
+		(ParamFloat<px4::params::CP_DIST>) _param_cp_dist /**< collision prevention keep minimum distance */
 	)
 };

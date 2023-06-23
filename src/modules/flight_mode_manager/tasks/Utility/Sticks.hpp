@@ -44,8 +44,16 @@
 #include <px4_platform_common/module_params.h>
 #include <matrix/matrix/math.hpp>
 #include <uORB/Subscription.hpp>
+#include <uORB/Publication.hpp>
 #include <uORB/topics/manual_control_setpoint.h>
 #include <uORB/topics/failsafe_flags.h>
+#include <uORB/SubscriptionMultiArray.hpp>
+#include <systemlib/mavlink_log.h>
+#include <uORB/topics/distance_sensor.h>
+#include <uORB/topics/collision_constraints.h>
+#include <lib/collision_prevention/CollisionPrevention.hpp>
+#include <mathlib/mathlib.h>
+#include <uORB/topics/parameter_update.h>
 
 class Sticks : public ModuleParams
 {
@@ -95,6 +103,18 @@ private:
 
 	uORB::Subscription _manual_control_setpoint_sub{ORB_ID(manual_control_setpoint)};
 	uORB::Subscription _failsafe_flags_sub{ORB_ID(failsafe_flags)};
+	orb_advert_t _mavlink_log_pub{nullptr};
+
+	CollisionPrevention _collision_prevention{this}; /**< collision avoidance setpoint amendment */
+
+	matrix::Vector4<int8_t> _collision_directions;
+
+	uORB::SubscriptionMultiArray<distance_sensor_s> _distance_sensor_subs{ORB_ID::distance_sensor};
+
+	bool _checkCollision();
+
+	void _modifyPositionsForCollision();
+
 
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::MPC_HOLD_DZ>) _param_mpc_hold_dz,

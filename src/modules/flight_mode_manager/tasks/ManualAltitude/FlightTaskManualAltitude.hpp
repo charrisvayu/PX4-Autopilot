@@ -45,6 +45,14 @@
 #include "StickTiltXY.hpp"
 #include "StickYaw.hpp"
 #include <uORB/Subscription.hpp>
+#include <uORB/topics/distance_sensor.h>
+#include <uORB/SubscriptionMultiArray.hpp>
+#include <uORB/Publication.hpp>
+#include <uORB/topics/collision_constraints.h>
+#include <lib/collision_prevention/CollisionPrevention.hpp>
+#include <matrix/math.hpp>
+#include <mathlib/mathlib.h>
+#include <uORB/topics/parameter_update.h>
 
 class FlightTaskManualAltitude : public FlightTask
 {
@@ -86,7 +94,8 @@ protected:
 					(ParamFloat<px4::params::MPC_LAND_SPEED>)
 					_param_mpc_land_speed, /**< desired downwards speed when approaching the ground */
 					(ParamFloat<px4::params::MPC_TKO_SPEED>)
-					_param_mpc_tko_speed /**< desired upwards speed when still close to the ground */
+					_param_mpc_tko_speed, /**< desired upwards speed when still close to the ground */
+					(ParamFloat<px4::params::MPC_MAN_TILT_MAX>) _param_mpc_man_tilt_max
 				       )
 private:
 	bool _isYawInput();

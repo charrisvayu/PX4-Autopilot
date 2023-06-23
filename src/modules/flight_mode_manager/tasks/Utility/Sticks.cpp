@@ -48,6 +48,7 @@ bool Sticks::checkAndUpdateStickInputs()
 {
 	// Sticks are rescaled linearly and exponentially to [-1,1]
 	manual_control_setpoint_s manual_control_setpoint;
+	// mavlink_log_critical(&_mavlink_log_pub, "in checkAndUpdateStickInputs");
 
 	if (_manual_control_setpoint_sub.update(&manual_control_setpoint)) {
 		// Linear scale
@@ -55,6 +56,10 @@ bool Sticks::checkAndUpdateStickInputs()
 		_positions(1) = manual_control_setpoint.roll;
 		_positions(2) = -manual_control_setpoint.throttle;
 		_positions(3) = manual_control_setpoint.yaw;
+
+		if (_collision_prevention.is_active() && _checkCollision()) {
+			_modifyPositionsForCollision();
+		}
 
 		// Exponential scale
 		_positions_expo(0) = math::expo_deadzone(_positions(0), _param_mpc_xy_man_expo.get(), _param_mpc_hold_dz.get());
@@ -97,4 +102,41 @@ void Sticks::rotateIntoHeadingFrameXY(Vector2f &v, const float yaw, const float 
 {
 	const float yaw_rotate = PX4_ISFINITE(yaw_setpoint) ? yaw_setpoint : yaw;
 	v = Dcm2f(yaw_rotate) * v;
+}
+
+bool Sticks::_checkCollision() {
+	_collision_directions.setAll(-100);
+	uint8_t i = 0;
+	for (auto &dist_sens_sub : _distance_sensor_subs) {
+		distance_sensor_s distance_sensor;
+
+		if (dist_sens_sub.update(&distance_sensor)) {
+			// consider only instances with valid data and orientations useful for collision prevention
+			if ((distance_sensor.orientation != distance_sensor_s::ROTATION_DOWNWARD_FACING) &&
+			(distance_sensor.orientation != distance_sensor_s::ROTATION_UPWARD_FACING) &&
+			distance_sensor.current_distance <= 2 && distance_sensor.current_distance > 0) {
+
+				_collision_directions(i) = distance_sensor.orientation;
+				i++;
+			}
+		}
+	}
+	return (i > 0);
+}
+
+void Sticks::_modifyPositionsForCollision() {
+	int8_t modifier = 2;
+	for (int i = 0; i < 4; i++)
+	{
+		if (_collision_directions(i) == 0 && _positions(0) > 0) {
+			_positions(0) /= modifier;
+			mavlink_log_critical(&_mavlink_log_pub, "reducing forward motion...");
+		} else if ((_collision_directions(i) == 2 ) && _positions(1) > 0) {
+			_positions(1) /= modifier;
+		} else if ((_collision_directions(i) == 6) && _positions(1) < 0) {
+			_positions(1) /= modifier;
+		} else if ((_collision_directions(i) == 12) && _positions(0) < 0) {
+			_positions(0) /= modifier;
+		}
+	}
 }
